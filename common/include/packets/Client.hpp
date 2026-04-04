@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Packet.hpp"
-#include "types/UserClient.hpp"
 
 class UserJoinPacket : public Packet<UserJoinPacket, 1001> {
 public:

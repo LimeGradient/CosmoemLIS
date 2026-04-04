@@ -34,5 +34,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     d3dcompiler.lib
 )
 target_include_directories(${PROJECT_NAME} PRIVATE include/)
-
-file(COPY "${CMAKE_BINARY_DIR}/server/inject/LISMultiplayerHost.dll" DESTINATION "${CMAKE_SOURCE_DIR}/bin/")
