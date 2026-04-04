@@ -19,6 +19,11 @@ public:
         auto res = this->webSocket.sendText(val);
     }
 
+    ~ClientManager() {
+        this->webSocket.stop();
+        ix::uninitNetSystem();
+    }
+
 private:
     ix::WebSocket webSocket;
 };

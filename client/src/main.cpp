@@ -1,5 +1,6 @@
-#include "network/Client.hpp"
+#include "UI/Window.hpp"
 
 int main() {
-    ClientManager::get()->init();
+    Window* win = Window::get();
+    win->init();
 }

@@ -26,10 +26,10 @@ void Server::init(int port) {
 
     auto res = this->webSocket->listen();
     if (!res.first) {
-        printf("Server failed to start: %s", res.second.c_str());
+        printf("Server failed to start: %s\n", res.second.c_str());
         return;
     }
     
     this->webSocket->start();
-    printf("Server started on port %d", port);
+    printf("Server started on port %d\n", port);
 }

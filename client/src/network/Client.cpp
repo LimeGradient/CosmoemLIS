@@ -8,6 +8,7 @@ void ClientManager::init() {
     ix::initNetSystem();
 
     this->webSocket.setUrl("ws://127.0.0.1:2876/");
+    this->webSocket.setPingInterval(45);
     this->webSocket.setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
         switch (msg->type) {
             case ix::WebSocketMessageType::Message:
@@ -17,7 +18,12 @@ void ClientManager::init() {
                 printf("Connection established with server\n");
                 break;
             case ix::WebSocketMessageType::Close:
-                printf("Connection closed with server\n");
+                printf(
+                    "Connection closed with server - code: %hu | reason: %s\n | remote: %s", 
+                    msg->closeInfo.code, 
+                    msg->closeInfo.reason.c_str(),
+                    msg->closeInfo.remote ? "client closed" : "server closed"
+                );
                 break;
             case ix::WebSocketMessageType::Error:
             case ix::WebSocketMessageType::Ping:
@@ -30,7 +36,5 @@ void ClientManager::init() {
     printf("Starting websocket client...\n");
     this->webSocket.start();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-
-    this->send(UserJoinPacket::create("limegradient", "uhh-idk-fix-this"));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 }
