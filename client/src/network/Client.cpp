@@ -1,18 +1,32 @@
 #include "network/Client.hpp"
 
 #include <stdio.h>
+#include <format>
 
+#include "Packet.hpp"
 #include "packets/Client.hpp"
+#include "StringExtras.hpp"
 
-void ClientManager::init() {
+
+void ClientManager::init(std::string host, int port) {
     ix::initNetSystem();
 
-    this->webSocket.setUrl("ws://127.0.0.1:2876/");
+    this->webSocket.setUrl(std::format("ws://{}:{}/", host, port));
     this->webSocket.setPingInterval(45);
     this->webSocket.setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
         switch (msg->type) {
             case ix::WebSocketMessageType::Message:
-                printf("Message: %s\n", msg->str.c_str());
+                if (!msg->binary || !msg->str.empty()) {
+                    auto type = (MessageType)(uint8_t)msg->str[0];
+                    std::string payload = msg->str.substr(1);
+                    switch (type) {
+                        case MessageType::Packet:
+                            printf("Packet: %s", payload.c_str());
+                            break;
+                        case MessageType::Frame:
+                            break;
+                    }
+                }
                 break;
             case ix::WebSocketMessageType::Open:
                 printf("Connection established with server\n");
@@ -35,6 +49,13 @@ void ClientManager::init() {
 
     printf("Starting websocket client...\n");
     this->webSocket.start();
+    this->userID = StringExtras::generateRandomString(16);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+ClientManager::~ClientManager() {
+    this->send(UserLeavePacket::create(this->userID));
+    this->webSocket.stop();
+    ix::uninitNetSystem();
 }

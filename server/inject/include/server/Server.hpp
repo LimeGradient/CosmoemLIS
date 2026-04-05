@@ -8,6 +8,7 @@
 #include <nlohmann/json.hpp>
 
 #include "types/UserClient.hpp"
+#include "Packet.hpp"
 
 class Server {
 public:
@@ -16,7 +17,13 @@ public:
         return &instance;
     }
 
-    void init(int port);
+    void start(int port);
+    void stop();
+    bool isOnline();
+
+    std::vector<UserClient> getClients() {
+        return this->clients;
+    }
 
 private:
     template <typename Packet>
@@ -29,13 +36,15 @@ private:
     void broadcast(Packet const& packet) {
         for (auto socket : this->webSocket->getClients()) {
             std::string val = packet.encode().dump();
-            auto res = socket->sendText(val);
+            auto payload = createPayload(MessageType::Packet, val.data(), val.size());
+            auto res = socket->sendBinary(payload);
         }
     }
 
     void handlePackets(std::string packetData, ix::WebSocket& socket);
     void handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket);
 
+    bool online = false;
     std::unique_ptr<ix::WebSocketServer> webSocket;
     std::vector<UserClient> clients;
 };

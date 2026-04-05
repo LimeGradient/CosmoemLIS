@@ -23,3 +23,23 @@ protected:
     std::string name;
     std::string userID;
 };
+
+class UserLeavePacket : public Packet<UserLeavePacket, 1002> {
+public:
+    UserLeavePacket(std::string userID) : userID(userID) {}
+
+    static UserLeavePacket create(std::string userID) {
+        return UserLeavePacket(userID);
+    }
+
+    friend class Packet;
+
+protected:
+    nlohmann::json encodeData() const {
+        return nlohmann::json::object({
+            {"userID", userID}
+        });
+    }
+
+    std::string userID;
+};

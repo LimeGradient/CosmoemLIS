@@ -4,7 +4,7 @@
 
 #include <stdio.h>
 
-void Server::init(int port) {
+void Server::start(int port) {
     this->webSocket = std::make_unique<ix::WebSocketServer>(port, "0.0.0.0");
 
     this->webSocket->setOnClientMessageCallback([this](std::shared_ptr<ix::ConnectionState> connectionState, ix::WebSocket & webSocket, const ix::WebSocketMessagePtr & msg) {
@@ -33,7 +33,18 @@ void Server::init(int port) {
     }
     
     this->webSocket->start();
+    this->online = true;
     printf("Server started on port %d\n", port);
+}
+
+void Server::stop() {
+    this->webSocket->stop();
+    this->online = false;
+    printf("Stopping server...\n");
+}
+
+bool Server::isOnline() {
+    return this->online;
 }
 
 void Server::handlePackets(std::string packetData, ix::WebSocket& socket) {

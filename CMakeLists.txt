@@ -9,6 +9,7 @@ FetchContent_Declare(
     GIT_REPOSITORY https://github.com/machinezone/IXWebSocket
     GIT_TAG v11.4.6
 )
+set(USE_ZLIB OFF)
 FetchContent_MakeAvailable(IXWebSocket)
 
 FetchContent_Declare(
@@ -30,13 +31,16 @@ add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/imgui_draw.cpp
     ${imgui_SOURCE_DIR}/imgui_widgets.cpp
     ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/misc/cpp/imgui_stdlib.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_win32.cpp
     ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
+
 )
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 
 add_library(LISMultiplayerCommon STATIC
     common/Packet.cpp
+    common/StringExtras.cpp
 )
 target_include_directories(LISMultiplayerCommon PUBLIC common/include/)
 target_link_libraries(LISMultiplayerCommon PRIVATE nlohmann_json::nlohmann_json)

@@ -11,7 +11,7 @@ public:
         return &instance;
     }
 
-    void init();
+    void init(std::string host, int port);
     
     template <typename Packet>
     void send(Packet const& packet) {
@@ -19,11 +19,13 @@ public:
         auto res = this->webSocket.sendText(val);
     }
 
-    ~ClientManager() {
-        this->webSocket.stop();
-        ix::uninitNetSystem();
+    std::string getUserID() {
+        return this->userID;
     }
 
 private:
+    ~ClientManager();
+
     ix::WebSocket webSocket;
+    std::string userID;
 };

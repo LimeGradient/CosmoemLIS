@@ -11,7 +11,6 @@ file(GLOB_RECURSE SOURCES src/*.cpp)
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 include(FetchContent)
-
 FetchContent_Declare(
     SDL3
     GIT_REPOSITORY https://github.com/libsdl-org/SDL
@@ -19,10 +18,17 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(SDL3)
 
+target_include_directories(imgui PRIVATE $<TARGET_PROPERTY:SDL3::SDL3,INTERFACE_INCLUDE_DIRECTORIES>)
+
+target_sources(imgui PRIVATE 
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdl3.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
+    SDL3::SDL3
     imgui 
     ixwebsocket
-    SDL3::SDL3
     nlohmann_json::nlohmann_json
     LISMultiplayerCommon
 )

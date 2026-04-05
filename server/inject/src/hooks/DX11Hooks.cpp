@@ -8,6 +8,8 @@
 #include <backends/imgui_impl_dx11.h>
 #include <MinHook.h>
 
+#include "panel/ServerPanel.hpp"
+
 typedef HRESULT(__stdcall* Present_t)(IDXGISwapChain*, UINT, UINT);
 typedef HRESULT(__stdcall* ResizeBuffers_t)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
 
@@ -34,7 +36,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wp, LPARAM lp) {
 }
 
 void InitImGui(IDXGISwapChain* swapChain) {
-    
     swapChain->GetDevice(__uuidof(ID3D11Device), (void**)&g_device);
     g_device->GetImmediateContext(&g_context);
     
@@ -50,6 +51,7 @@ void InitImGui(IDXGISwapChain* swapChain) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO();
+    io.MouseDrawCursor = g_visible;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     ImGui::StyleColorsDark();
 
@@ -74,11 +76,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* swapChain, UINT syncInterval, UINT f
         ImGui_ImplWin32_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("LIS Multiplayer - Connect");
-
-        ImGui::Text("I LOVE KIDS");
-
-        ImGui::End();
+        ServerPanel::get()->renderHostPanel();
 
         ImGui::Render();
         g_context->OMSetRenderTargets(1, &g_rtv, nullptr);
@@ -89,7 +87,8 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* swapChain, UINT syncInterval, UINT f
 }
 
 
-HRESULT __stdcall hkResizeBuffers(IDXGISwapChain* swapChain, UINT count,
+HRESULT __stdcall hkResizeBuffers(
+    IDXGISwapChain* swapChain, UINT count,
     UINT w, UINT h, DXGI_FORMAT fmt, UINT flags)
 {
     if (g_rtv) { g_rtv->Release(); g_rtv = nullptr; }

@@ -1,4 +1,3 @@
-#define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
 #include <MinHook.h>
 #include <imgui.h>
@@ -51,8 +50,6 @@ void OnAttach(HINSTANCE hModule) {
 
     CreateConsole();
     installHooks();
-
-    Server::get()->init(2876);
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
