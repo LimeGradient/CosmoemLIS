@@ -21,7 +21,7 @@ void ClientManager::init(std::string host, int port) {
                     std::string payload = msg->str.substr(1);
                     switch (type) {
                         case MessageType::Packet:
-                            printf("Packet: %s", payload.c_str());
+                            this->handlePackets(payload);
                             break;
                         case MessageType::Frame:
                             break;
@@ -52,6 +52,29 @@ void ClientManager::init(std::string host, int port) {
     this->userID = StringExtras::generateRandomString(16);
 
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
+}
+
+void ClientManager::handlePackets(std::string packetData) {
+    nlohmann::json packetRaw = nlohmann::json::parse(packetData);
+    
+    if (!packetRaw.contains("packetID")) {
+        printf("No packet id found in message: %s\n", packetData.c_str());
+        return;
+    }
+
+    int packetID = packetRaw["packetID"];
+    switch (packetID) {
+        case 2001: {
+            std::vector<User> users = packetRaw["data"]["users"];
+            ClientManager::get()->setClients(users);
+            break;
+        }
+        case 2002: {
+            std::vector<User> users = packetRaw["data"]["users"];
+            ClientManager::get()->setClients(users);
+            break;
+        }
+    }
 }
 
 ClientManager::~ClientManager() {

@@ -24,6 +24,9 @@ void ServerPanel::renderHostPanel() {
         }
     }
 
+    ImGui::Separator();
+    
+    ImGui::Text("Lobby");
     if (!clients.empty()) {
         if (ImGui::BeginTable("users_table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
             ImGui::TableSetupColumn("Name");

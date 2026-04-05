@@ -20,5 +20,27 @@ void ConnectPanel::render() {
         cm->send(UserJoinPacket::create(this->name, cm->getUserID()));
     }
 
+    ImGui::Separator();
+
+    if (cm->connected()) {
+        auto clients = cm->getClients();
+        ImGui::Text("Lobby");
+        if (ImGui::BeginTable("users_table", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+            ImGui::TableSetupColumn("Name");
+            ImGui::TableSetupColumn("User ID");
+            ImGui::TableHeadersRow();
+
+            for (auto client : clients) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", client.name.c_str());
+                ImGui::TableNextColumn();
+                ImGui::Text("%s", client.userID.c_str());
+            }
+
+            ImGui::EndTable();
+        }
+    }
+
     ImGui::End();
 }

@@ -43,6 +43,7 @@ private:
 
     void handlePackets(std::string packetData, ix::WebSocket& socket);
     void handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket);
+    void handleUserLeavePacket(nlohmann::json rawData);
 
     bool online = false;
     std::unique_ptr<ix::WebSocketServer> webSocket;

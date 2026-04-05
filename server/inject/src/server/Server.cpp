@@ -62,11 +62,14 @@ void Server::handlePackets(std::string packetData, ix::WebSocket& socket) {
             this->handleUserJoinPacket(packetRaw, socket);
             break;
         }
+        case 1002: {
+            this->handleUserLeavePacket(packetRaw);
+            break;
+        }
     }
 }
 
 void Server::handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket) {
-    printf("Handling user packet\n");
     nlohmann::json data = rawData["data"];
 
     auto userClient = UserClient(
@@ -76,11 +79,29 @@ void Server::handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket)
     );
     this->clients.push_back(userClient);
 
-    std::vector<UserJoinedPacket::User> users;
+    std::vector<User> users;
     for (auto client : this->clients) {
         users.push_back({client.name, client.userID});
     }
 
-    auto packet = UserJoinedPacket(users);
+    auto packet = UserJoinedPacket::create(users);
+    this->broadcast(packet);
+}
+
+void Server::handleUserLeavePacket(nlohmann::json rawData) {
+    nlohmann::json data = rawData["data"];
+
+    this->clients.erase(
+        std::find_if(this->clients.begin(), this->clients.end(), [data](UserClient const& uc) {
+            return uc.userID == data["userID"].get<std::string>();  
+        })
+    );
+
+    std::vector<User> users;
+    for (auto client : this->clients) {
+        users.push_back({client.name, client.userID});
+    }
+
+    auto packet = UserLeftPacket::create(users);
     this->broadcast(packet);
 }
