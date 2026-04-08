@@ -8,12 +8,12 @@
 #include "StringExtras.hpp"
 #include "UI/panels/ChoicePanel.hpp"
 
-void ClientManager::init(std::string host, int port) {
+void ClientManager::init(std::string host, int port, std::string name) {
     ix::initNetSystem();
 
     this->webSocket.setUrl(std::format("ws://{}:{}/", host, port));
     this->webSocket.setPingInterval(45);
-    this->webSocket.setOnMessageCallback([this](const ix::WebSocketMessagePtr& msg) {
+    this->webSocket.setOnMessageCallback([this, name](const ix::WebSocketMessagePtr& msg) {
         switch (msg->type) {
             case ix::WebSocketMessageType::Message:
                 if (!msg->binary || !msg->str.empty()) {
@@ -30,18 +30,23 @@ void ClientManager::init(std::string host, int port) {
                 break;
             case ix::WebSocketMessageType::Open:
                 printf("Connection established with server\n");
+                this->send(UserJoinPacket::create(name, this->getUserID()));
                 break;
             case ix::WebSocketMessageType::Close:
                 printf(
-                    "Connection closed with server - code: %hu | reason: %s\n | remote: %s", 
+                    "Connection closed with server - code: %hu | reason: %s | remote: %s\n", 
                     msg->closeInfo.code, 
                     msg->closeInfo.reason.c_str(),
                     msg->closeInfo.remote ? "client closed" : "server closed"
                 );
                 ChoicePanel::get()->showPanel(false);
-                this->webSocket.stop();
                 break;
             case ix::WebSocketMessageType::Error:
+                printf(
+                    "Error - code: %hu | reason: %s\n",
+                    msg->errorInfo.http_status,
+                    msg->errorInfo.reason.c_str()
+                );
             case ix::WebSocketMessageType::Ping:
             case ix::WebSocketMessageType::Pong:
             case ix::WebSocketMessageType::Fragment:

@@ -14,7 +14,7 @@ public:
         return &instance;
     }
 
-    void init(std::string host, int port);
+    void init(std::string host, int port, std::string name);
     bool connected() {
         if (this->webSocket.getReadyState() == ix::ReadyState::Open) {
             return true;

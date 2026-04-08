@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(LISMultiplayer)
 
 include(FetchContent)
@@ -36,6 +37,7 @@ add_library(imgui STATIC
     ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
 
 )
+
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 
 add_library(LISMultiplayerCommon STATIC

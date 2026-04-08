@@ -44,7 +44,7 @@ void VotesPanel::startTimer(int seconds) {
     }
 
     std::thread thread([this, seconds] {
-        for (int i = seconds; i > 0; i--) {
+        for (int i = seconds; i >= 0; i--) {
             this->timerStr = std::to_string(i);
             printf("There is %ss left\n", this->timerStr.c_str());
 

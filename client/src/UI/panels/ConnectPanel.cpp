@@ -16,8 +16,7 @@ void ConnectPanel::render() {
     ImGui::InputInt("Port", &this->port);
     ImGui::InputText("Name", &this->name);
     if (ImGui::Button("Connect")) {
-        cm->init(this->host, this->port);
-        cm->send(UserJoinPacket::create(this->name, cm->getUserID()));
+        cm->init(this->host, this->port, this->name);
     }
 
     ImGui::Separator();
