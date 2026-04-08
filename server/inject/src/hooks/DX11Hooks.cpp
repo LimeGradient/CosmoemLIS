@@ -9,6 +9,7 @@
 #include <MinHook.h>
 
 #include "panel/ServerPanel.hpp"
+#include "panel/VotesPanel.hpp"
 
 typedef HRESULT(__stdcall* Present_t)(IDXGISwapChain*, UINT, UINT);
 typedef HRESULT(__stdcall* ResizeBuffers_t)(IDXGISwapChain*, UINT, UINT, UINT, DXGI_FORMAT, UINT);
@@ -77,6 +78,7 @@ HRESULT __stdcall hkPresent(IDXGISwapChain* swapChain, UINT syncInterval, UINT f
         ImGui::NewFrame();
 
         ServerPanel::get()->renderHostPanel();
+        VotesPanel::get()->render();
 
         ImGui::Render();
         g_context->OMSetRenderTargets(1, &g_rtv, nullptr);

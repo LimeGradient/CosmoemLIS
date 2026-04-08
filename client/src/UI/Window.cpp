@@ -4,9 +4,8 @@
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
 
-#include "network/Client.hpp"
-#include "packets/Client.hpp"
 #include "UI/panels/ConnectPanel.hpp"
+#include "UI/panels/ChoicePanel.hpp"
 
 void Window::init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
@@ -49,6 +48,7 @@ void Window::init() {
         ImGui::NewFrame();
         
         ConnectPanel::get()->render();
+        ChoicePanel::get()->render();
 
         ImGui::Render();
         SDL_SetRenderDrawColorFloat(this->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT);

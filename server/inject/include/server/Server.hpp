@@ -25,7 +25,6 @@ public:
         return this->clients;
     }
 
-private:
     template <typename Packet>
     void send(Packet const& packet, ix::WebSocket socket) {
         std::string val = packet.encode().dump();
@@ -41,11 +40,27 @@ private:
         }
     }
 
+    void setChoices(std::vector<std::pair<Choice, float>> choices) {
+        this->choiceVotes = choices;
+    }
+
+    std::vector<std::pair<Choice, float>> getChoices() {
+        return this->choiceVotes;
+    }
+
+    int getTotalVotes() {
+        return this->totalVotes;
+    }
+
+private:
     void handlePackets(std::string packetData, ix::WebSocket& socket);
     void handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket);
     void handleUserLeavePacket(nlohmann::json rawData);
+    void handleSendChoicePacket(nlohmann::json rawData);
 
     bool online = false;
     std::unique_ptr<ix::WebSocketServer> webSocket;
     std::vector<UserClient> clients;
+    std::vector<std::pair<Choice, float>> choiceVotes;
+    int totalVotes;
 };

@@ -22,6 +22,14 @@ struct Il2CppList {
     int32_t            version; // 0x1C
 };
 
+template <typename T>
+struct Il2CppArray {
+    Il2CppObjectHeader header;
+    void* bounds;
+    uintptr_t max_length;
+    T vector[0];
+};
+
 inline std::string ReadIl2CppString(Il2CppString* str) {
     if (!str) return "";
 

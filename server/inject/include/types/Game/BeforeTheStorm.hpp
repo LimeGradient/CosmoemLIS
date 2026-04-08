@@ -62,6 +62,13 @@ enum class eChoicePositions : int32_t {
     kDown  = 4,
 };
 
+enum class eInteractMenu : int32_t {
+    kUp = 0,
+    kRight = 1,
+    kDown = 2,
+    kLeft = 3
+};
+
 struct ChoiceObject : EditableDataObjectTreed {
     Il2CppString*              text;            // 0x68
     Il2CppString*              localizationKey; // 0x70

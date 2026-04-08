@@ -6,7 +6,7 @@
 #include "Packet.hpp"
 #include "packets/Client.hpp"
 #include "StringExtras.hpp"
-
+#include "UI/panels/ChoicePanel.hpp"
 
 void ClientManager::init(std::string host, int port) {
     ix::initNetSystem();
@@ -38,6 +38,8 @@ void ClientManager::init(std::string host, int port) {
                     msg->closeInfo.reason.c_str(),
                     msg->closeInfo.remote ? "client closed" : "server closed"
                 );
+                ChoicePanel::get()->showPanel(false);
+                this->webSocket.stop();
                 break;
             case ix::WebSocketMessageType::Error:
             case ix::WebSocketMessageType::Ping:
@@ -66,18 +68,25 @@ void ClientManager::handlePackets(std::string packetData) {
     switch (packetID) {
         case 2001: {
             std::vector<User> users = packetRaw["data"]["users"];
-            ClientManager::get()->setClients(users);
+            this->setClients(users);
             break;
         }
         case 2002: {
             std::vector<User> users = packetRaw["data"]["users"];
-            ClientManager::get()->setClients(users);
+            this->setClients(users);
+            break;
+        }
+        case 3001: {
+            std::vector<Choice> choices = packetRaw["data"]["choices"];
+            ChoicePanel::get()->setChoices(choices);
+            ChoicePanel::get()->showPanel(true);
             break;
         }
     }
 }
 
 ClientManager::~ClientManager() {
+    ChoicePanel::get()->showPanel(false);
     this->send(UserLeavePacket::create(this->userID));
     this->webSocket.stop();
     ix::uninitNetSystem();

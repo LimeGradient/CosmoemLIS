@@ -24,9 +24,11 @@ void installHooks() {
     const uintptr_t DW_SETUP_CHOICES_OFFSET = 0x2F50D0;
     auto pSetupChoices = reinterpret_cast<LPVOID*>(base + DW_SETUP_CHOICES_OFFSET);
 
+    const uintptr_t CHOICE_MADE_OFFSET = 0x2F35B0;
     const uintptr_t GET_DIALOG_CHOICE_OFFSET = 0x3208E0;
+    const uintptr_t GET_PREFERRED_CHOICE_OFFSET = 0x24E580;
 
-    createChoicesHooks(pSetupChoices, (GetDialogChoice_t)(base + GET_DIALOG_CHOICE_OFFSET));
+    createChoicesHooks(pSetupChoices, (ChoiceMade_t)(base + CHOICE_MADE_OFFSET), (GetDialogChoice_t)(base + GET_DIALOG_CHOICE_OFFSET), (GetPreferredChoice_t)(base + GET_PREFERRED_CHOICE_OFFSET));
     createDX11Hooks();
 
     printf("Hooks installed successfully!\n");

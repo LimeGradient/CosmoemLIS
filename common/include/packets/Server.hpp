@@ -5,6 +5,8 @@
 
 #include "Packet.hpp"
 
+#include "types/Choice.hpp"
+
 struct User {
     std::string name;
     std::string userID;
@@ -50,4 +52,26 @@ private:
     }
 
     std::vector<User> users;
+};
+
+class SendChoicesPacket : public Packet<SendChoicesPacket, 3001> {
+public:
+    SendChoicesPacket(std::vector<Choice> choices, bool isMajorChoice) : choices(choices), isMajorChoice(isMajorChoice) {}
+
+    static SendChoicesPacket create(std::vector<Choice> choices, bool isMajorChoice) {
+        return SendChoicesPacket(choices, isMajorChoice);
+    }
+
+    friend class Packet;
+
+private:
+    nlohmann::json encodeData() const {
+        return nlohmann::json::object({
+            {"choices", choices},
+            {"isMajorChoice", isMajorChoice}
+        });
+    }
+
+    std::vector<Choice> choices;
+    bool isMajorChoice;
 };

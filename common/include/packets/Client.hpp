@@ -2,6 +2,8 @@
 
 #include "Packet.hpp"
 
+#include "types/Choice.hpp"
+
 class UserJoinPacket : public Packet<UserJoinPacket, 1001> {
 public:
     UserJoinPacket(std::string name, std::string userID) : name(name), userID(userID) {}
@@ -42,4 +44,24 @@ protected:
     }
 
     std::string userID;
+};
+
+class SendChoicePacket : public Packet<SendChoicePacket, 3001> {
+public:
+    SendChoicePacket(Choice choice) : choice(choice) {}
+
+    static SendChoicePacket create(Choice choice) {
+        return SendChoicePacket(choice);
+    }
+
+    friend class Packet;
+
+private:
+    nlohmann::json encodeData() const {
+        return nlohmann::json::object({
+            {"choice", choice}
+        });
+    }
+
+    Choice choice;
 };

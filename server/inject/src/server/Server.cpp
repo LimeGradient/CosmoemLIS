@@ -66,6 +66,10 @@ void Server::handlePackets(std::string packetData, ix::WebSocket& socket) {
             this->handleUserLeavePacket(packetRaw);
             break;
         }
+        case 3001: {
+            this->handleSendChoicePacket(packetRaw);
+            break;
+        }
     }
 }
 
@@ -104,4 +108,17 @@ void Server::handleUserLeavePacket(nlohmann::json rawData) {
 
     auto packet = UserLeftPacket::create(users);
     this->broadcast(packet);
+}
+
+void Server::handleSendChoicePacket(nlohmann::json rawData) {
+    nlohmann::json data = rawData["data"];
+
+    auto it = std::find_if(this->choiceVotes.begin(), this->choiceVotes.end(), [data](const std::pair<Choice, float>& c) {
+        return c.first.choiceID == data["choice"]["choiceID"];
+    });
+
+    if (it != this->choiceVotes.end()) {
+        it->second++;
+        this->totalVotes++;
+    }
 }
