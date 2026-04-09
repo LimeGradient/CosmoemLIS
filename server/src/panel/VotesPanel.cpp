@@ -1,5 +1,7 @@
 #include "panel/VotesPanel.hpp"
 
+#include <algorithm>
+#include <random>
 #include <thread>
 #include <imgui.h>
 
@@ -16,6 +18,48 @@ void VotesPanel::render() {
         auto totalVotes = server->getTotalVotes();
         
         if (totalVotes == server->getClients().size() || this->timerComplete) {
+            auto isSplitChoice = [choices](const std::vector<std::pair<Choice, float>>& vec) -> std::pair<Choice, float>* {
+                auto it = std::find_if(
+                    vec.begin(), 
+                    vec.end(),
+                [](const auto& p) {
+                    return p.second > 0.0f; 
+                });
+
+                if (it == vec.end()) return nullptr;
+
+                float reference = it->second;
+
+                bool isEven = std::all_of(
+                vec.begin(), 
+                vec.end(),
+                [reference](const auto& p) {
+                    return p.second <= 0.0f || p.second == reference;
+                });
+
+                if (isEven) {
+                    std::vector<std::pair<Choice, float>*> candidates;
+                    for (auto p : vec) {
+                        if (p.second > 0.0f) {
+                            candidates.push_back(&p);
+                        }
+                    }
+
+                    std::mt19937 rng(std::random_device{}());
+                    std::uniform_int_distribution<size_t> dist(0, candidates.size() - 1);
+                    return candidates[dist(rng)];
+                } else {
+                    return nullptr;
+                }
+            };
+
+            if (auto choice = isSplitChoice(choices)) {
+                auto it = std::find_if(choices.begin(), choices.end(), [choice](const std::pair<Choice, float>& p) {
+                    return p.first.choiceID == choice->first.choiceID;
+                });
+                int index = std::distance(choices.begin(), it);
+            }
+
             auto it = std::max_element(choices.begin(), choices.end(), [](const auto& lhs, const auto& rhs) {
                 return lhs.second < rhs.second;
             });
