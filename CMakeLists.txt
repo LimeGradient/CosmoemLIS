@@ -4,6 +4,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(LISMultiplayer)
 
+option(LIS_BUILD_SERVER ON)
+option(LIS_BUILD_CLIENT ON)
+
 include(FetchContent)
 FetchContent_Declare(
     IXWebSocket
@@ -47,5 +50,10 @@ add_library(LISMultiplayerCommon STATIC
 target_include_directories(LISMultiplayerCommon PUBLIC common/include/)
 target_link_libraries(LISMultiplayerCommon PRIVATE nlohmann_json::nlohmann_json)
 
-add_subdirectory(client/)
-add_subdirectory(server/)
+if (LIS_BUILD_CLIENT)
+    add_subdirectory(client/)
+endif()
+
+if (LIS_BUILD_SERVER)
+    add_subdirectory(server/)
+endif()
