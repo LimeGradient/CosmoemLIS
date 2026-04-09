@@ -23,6 +23,11 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_compile_definitions(WIN32_LEAN_AND_MEAN=1)
 endif()
 
+target_sources(imgui PRIVATE 
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_win32.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_dx11.cpp
+)
+
 target_link_libraries(${PROJECT_NAME} PRIVATE
     minhook 
     imgui 
