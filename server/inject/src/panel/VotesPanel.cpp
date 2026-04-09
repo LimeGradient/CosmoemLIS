@@ -3,6 +3,7 @@
 #include <thread>
 #include <imgui.h>
 
+#include "server/GameManager.hpp"
 #include "server/Server.hpp"
 
 void VotesPanel::render() {
@@ -13,6 +14,34 @@ void VotesPanel::render() {
         auto server = Server::get();
         auto choices = server->getChoices();
         auto totalVotes = server->getTotalVotes();
+        
+        if (totalVotes == server->getClients().size() || this->timerComplete) {
+            auto it = std::max_element(choices.begin(), choices.end(), [](const auto& lhs, const auto& rhs) {
+                return lhs.second < rhs.second;
+            });
+
+            if (it != choices.end()) {
+                auto choice = it->first;
+                // choice auto positioning guide
+                // left -> right -> up -> down
+                int index = std::distance(choices.begin(), it);
+                switch (index) {
+                    case 0:
+                        this->makeChoice(eInteractMenu::kLeft);
+                        break;
+                    case 1:
+                        this->makeChoice(eInteractMenu::kRight);
+                        break;
+                    case 2:
+                        this->makeChoice(eInteractMenu::kUp);
+                        break;
+                    case 3:
+                        this->makeChoice(eInteractMenu::kDown);
+                        break;
+                }
+                this->choiceMade = true;
+            }
+        }
 
         if (!choices.empty()) {
             ImGui::Text("Remaining Time: %ss", this->timerStr.c_str());
@@ -43,10 +72,15 @@ void VotesPanel::startTimer(int seconds) {
         return;
     }
 
+    this->timerComplete = false;
+
     std::thread thread([this, seconds] {
         for (int i = seconds; i >= 0; i--) {
+            if (this->choiceMade) {
+                break;
+            }
+
             this->timerStr = std::to_string(i);
-            printf("There is %ss left\n", this->timerStr.c_str());
 
             if (i > 0) {
                 std::this_thread::sleep_for(std::chrono::seconds(1));
@@ -54,7 +88,17 @@ void VotesPanel::startTimer(int seconds) {
         }
         this->timerComplete = true;
         this->timerThreadSpawned = false;
+        this->choiceMade = false;
+        this->timerStr = std::to_string(GameManager::get()->choiceTime);
     });
 
     thread.detach();
+}
+
+void VotesPanel::makeChoice(eInteractMenu button) {
+    this->oChoiceMade.oChoiceMade(
+        this->oChoiceMade.instance,
+        button,
+        this->oChoiceMade.methodInfo
+    );
 }

@@ -44,6 +44,10 @@ public:
         this->choiceVotes = choices;
     }
 
+    void setTotalVotes(int tv) {
+        this->totalVotes = tv;
+    }
+
     std::vector<std::pair<Choice, float>> getChoices() {
         return this->choiceVotes;
     }

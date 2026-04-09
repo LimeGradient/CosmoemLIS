@@ -4,9 +4,9 @@
 #include <MinHook.h>
 
 #include "packets/Server.hpp"
-#include "server/Server.hpp"
-
 #include "panel/VotesPanel.hpp"
+#include "server/Server.hpp"
+#include "server/GameManager.hpp"
 
 bool(__stdcall* oSetupChoices)(void*, DialogChoiceGraphObject*, void*);
 bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject, void* methodInfo);
@@ -67,6 +67,13 @@ bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject,
     std::vector<Choice> packetChoices;
     std::vector<std::pair<Choice, float>> choiceVotes;
 
+    VotesPanel::get()->setChoiceMade({
+        oChoiceMade,
+        instance,
+        eInteractMenu::kLeft,
+        methodInfo
+    });
+
     for (int i = 0; i < choices->size; i++) {
         ChoiceObject* choice = *(ChoiceObject**)(arrayBase + i * sizeof(void*));
         if (!choice) continue;
@@ -93,17 +100,15 @@ bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject,
 
     if (server->isOnline()) {
         server->setChoices(choiceVotes);
+        server->setTotalVotes(0);
         VotesPanel::get()->showPanel(true);
 
-        VotesPanel::get()->startTimer(10);
+        VotesPanel::get()->startTimer(GameManager::get()->choiceTime);
 
         auto packet = SendChoicesPacket::create(packetChoices, isMajorChoice);
         server->broadcast(packet);
     }
 
-    // choice auto positioning guide:
-    // left -> right -> up -> down
-    // oChoiceMade(instance, eInteractMenu::kLeft, methodInfo);
     return oSetupChoices(instance, dialogChoiceObject, methodInfo);
 }
 

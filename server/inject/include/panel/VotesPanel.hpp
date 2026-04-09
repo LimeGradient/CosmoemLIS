@@ -5,6 +5,15 @@
 
 #include "types/Choice.hpp"
 
+#include "hooks/SetupChoices.hpp"
+
+struct ChoiceMadeFunction {
+    ChoiceMade_t oChoiceMade;
+    void* instance;
+    eInteractMenu button;
+    void* methodInfo;
+};
+
 class VotesPanel {
 public:
     static VotesPanel* get() {
@@ -22,11 +31,20 @@ public:
     void showPanel(bool show) {
         this->_showPanel = show;
     }
+    
+    void setChoiceMade(ChoiceMadeFunction choiceMade) {
+        this->oChoiceMade = choiceMade;
+    }
+
+    void makeChoice(eInteractMenu button);
 
 private:
     bool _showPanel = false;
-    bool timerComplete = false;
+    std::atomic<bool> timerComplete = false;
+    std::atomic<bool> choiceMade = false;
     std::vector<std::pair<Choice, float>> choices = {};
     std::atomic<bool> timerThreadSpawned = false;
     std::string timerStr = "0";
+
+    ChoiceMadeFunction oChoiceMade;
 };

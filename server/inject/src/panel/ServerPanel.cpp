@@ -3,10 +3,12 @@
 #include <imgui.h>
 #include <misc/cpp/imgui_stdlib.h>
 
+#include "server/GameManager.hpp"
 #include "server/Server.hpp"
 
 void ServerPanel::renderHostPanel() {
     auto server = Server::get();
+    auto gameManager = GameManager::get();
     auto clients = server->getClients();
 
     ImGui::SetNextWindowSize(ImVec2(375, 400));
@@ -26,30 +28,37 @@ void ServerPanel::renderHostPanel() {
 
     ImGui::Separator();
     
-    ImGui::Text("Lobby");
-    if (!clients.empty()) {
-        if (ImGui::BeginTable("users_table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
-            ImGui::TableSetupColumn("Name");
-            ImGui::TableSetupColumn("User ID");
-            ImGui::TableSetupColumn("");
-            ImGui::TableHeadersRow();
+    if (server->isOnline()) {
+        ImGui::Text("Lobby");
+        if (!clients.empty()) {
+            if (ImGui::BeginTable("users_table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+                ImGui::TableSetupColumn("Name");
+                ImGui::TableSetupColumn("User ID");
+                ImGui::TableSetupColumn("");
+                ImGui::TableHeadersRow();
 
-            for (auto client : clients) {
-                ImGui::TableNextRow();
-                ImGui::TableNextColumn();
-                ImGui::Text("%s", client.name.c_str());
-                ImGui::TableNextColumn();
-                ImGui::Text("%s", client.userID.c_str());
-                ImGui::TableNextColumn();
-                ImGui::PushID(client.userID.c_str());
-                if (ImGui::Button("Kick")) {
-                    
+                for (auto client : clients) {
+                    ImGui::TableNextRow();
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", client.name.c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::Text("%s", client.userID.c_str());
+                    ImGui::TableNextColumn();
+                    ImGui::PushID(client.userID.c_str());
+                    if (ImGui::Button("Kick")) {
+                        
+                    }
+                    ImGui::PopID();
                 }
-                ImGui::PopID();
-            }
 
-            ImGui::EndTable();
+                ImGui::EndTable();
+            }
         }
+
+        ImGui::Separator();
+        
+        ImGui::Text("Lobby Options");
+        ImGui::InputInt("Choice Time", &gameManager->choiceTime);
     }
 
     ImGui::End();

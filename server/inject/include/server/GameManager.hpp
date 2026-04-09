@@ -7,5 +7,5 @@ public:
         return &instance;
     }
 
-    int choiceTime;
+    int choiceTime = 30;
 };
