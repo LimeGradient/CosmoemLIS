@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.25)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
-project(LISMultiplayer)
+project(LISMultiplayer VERSION 1.0.0 LANGUAGES CXX)
 
 option(LIS_BUILD_SERVER "Build LIS Multiplayer Server" ON)
 option(LIS_BUILD_CLIENT "Build LIS Multiplayer Client" ON)
