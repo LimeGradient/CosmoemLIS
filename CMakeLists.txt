@@ -4,8 +4,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 project(LISMultiplayer)
 
-option(LIS_BUILD_SERVER ON)
-option(LIS_BUILD_CLIENT ON)
+option(LIS_BUILD_SERVER "Build LIS Multiplayer Server" ON)
+option(LIS_BUILD_CLIENT "Build LIS Multiplayer Client" ON)
 
 include(FetchContent)
 FetchContent_Declare(
