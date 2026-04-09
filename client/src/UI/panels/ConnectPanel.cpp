@@ -4,10 +4,11 @@
 #include <misc/cpp/imgui_stdlib.h>
 
 #include "network/Client.hpp"
-#include "packets/Client.hpp"
+#include "UI/Window.hpp"
 
 void ConnectPanel::render() {
     auto cm = ClientManager::get();
+    auto window = Window::get();
 
     ImGui::SetNextWindowSize(ImVec2(375, 400));
     ImGui::Begin("LIS Multiplayer - Connect");
@@ -40,6 +41,11 @@ void ConnectPanel::render() {
             ImGui::EndTable();
         }
     }
+
+    ImGui::Separator();
+
+    ImGui::Text("Client Options");
+    ImGui::Checkbox("Transparent Window", &window->isTransparent);
 
     ImGui::End();
 }

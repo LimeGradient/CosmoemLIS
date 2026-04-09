@@ -13,12 +13,12 @@ void Window::init() {
     }
 
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
-    if (!SDL_CreateWindowAndRenderer("LIS Multiplayer - Client", 1280, 720, SDL_WINDOW_RESIZABLE, &this->window, &this->renderer)) {
+    if (!SDL_CreateWindowAndRenderer("LIS Multiplayer - Client", 1280, 720, SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT, &this->window, &this->renderer)) {
         printf("Couldn't create window or renderer: %s", SDL_GetError());
         return;
     }
 
-    SDL_SetRenderLogicalPresentation(this->renderer, 1280, 720, SDL_LOGICAL_PRESENTATION_INTEGER_SCALE);
+    SDL_SetRenderLogicalPresentation(this->renderer, 1280, 720, SDL_LOGICAL_PRESENTATION_DISABLED);
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -51,7 +51,7 @@ void Window::init() {
         ChoicePanel::get()->render();
 
         ImGui::Render();
-        SDL_SetRenderDrawColorFloat(this->renderer, 0, 0, 0, SDL_ALPHA_OPAQUE_FLOAT);
+        SDL_SetRenderDrawColorFloat(this->renderer, 0, 0, 0, (!isTransparent) ? SDL_ALPHA_OPAQUE_FLOAT : SDL_ALPHA_TRANSPARENT_FLOAT);
         SDL_RenderClear(this->renderer);
         ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
         SDL_RenderPresent(this->renderer);

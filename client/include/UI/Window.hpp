@@ -11,6 +11,7 @@ public:
 
     void init();
 
+    bool isTransparent = false;
 private:
     SDL_Window* window;
     SDL_Renderer* renderer;
