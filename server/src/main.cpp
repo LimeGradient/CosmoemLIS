@@ -4,6 +4,7 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
 
+#include "Log.hpp"
 #include "hooks/DX11Hooks.hpp"
 #include "hooks/SetupChoices.hpp"
 #include "server/Server.hpp"
@@ -17,7 +18,7 @@ void installHooks() {
     uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 
     if (!base) {
-        printf("Failed to get GameAssembly.dll base!");
+        Logging::error("Failed to get GameAssembly.dll base");
         return;
     }
 
@@ -31,7 +32,7 @@ void installHooks() {
     createChoicesHooks(pSetupChoices, (ChoiceMade_t)(base + CHOICE_MADE_OFFSET), (GetDialogChoice_t)(base + GET_DIALOG_CHOICE_OFFSET), (GetPreferredChoice_t)(base + GET_PREFERRED_CHOICE_OFFSET));
     createDX11Hooks();
 
-    printf("Hooks installed successfully!\n");
+    Logging::info("Hooks installed successfully");
 }
 
 void CreateConsole() {

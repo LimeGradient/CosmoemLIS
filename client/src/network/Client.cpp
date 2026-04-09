@@ -1,8 +1,9 @@
 #include "network/Client.hpp"
 
-#include <stdio.h>
 #include <format>
+#include <stdio.h>
 
+#include "Log.hpp"
 #include "Packet.hpp"
 #include "packets/Client.hpp"
 #include "StringExtras.hpp"
@@ -29,21 +30,19 @@ void ClientManager::init(std::string host, int port, std::string name) {
                 }
                 break;
             case ix::WebSocketMessageType::Open:
-                printf("Connection established with server\n");
+                Logging::info("Connection established with server");
                 this->send(UserJoinPacket::create(name, this->getUserID()));
                 break;
             case ix::WebSocketMessageType::Close:
-                printf(
-                    "Connection closed with server - code: %hu | reason: %s | remote: %s\n", 
-                    msg->closeInfo.code, 
+                Logging::info("Connection closed with server - code: {} | reason: {} | remote: {}",
+                    msg->closeInfo.code,
                     msg->closeInfo.reason.c_str(),
                     msg->closeInfo.remote ? "client closed" : "server closed"
                 );
                 ChoicePanel::get()->showPanel(false);
                 break;
             case ix::WebSocketMessageType::Error:
-                printf(
-                    "Error - code: %hu | reason: %s\n",
+                Logging::error("Error - code: {} | reason: {}",
                     msg->errorInfo.http_status,
                     msg->errorInfo.reason.c_str()
                 );
@@ -54,7 +53,7 @@ void ClientManager::init(std::string host, int port, std::string name) {
         }
     });
 
-    printf("Starting websocket client...\n");
+    Logging::info("Starting websocket client");
     this->webSocket.start();
     this->userID = StringExtras::generateRandomString(16);
 
@@ -65,7 +64,8 @@ void ClientManager::handlePackets(std::string packetData) {
     nlohmann::json packetRaw = nlohmann::json::parse(packetData);
     
     if (!packetRaw.contains("packetID")) {
-        printf("No packet id found in message: %s\n", packetData.c_str());
+        Logging::error("No packet data found in packet.");
+        Logging::info("Recieved data: {}", packetData);
         return;
     }
 

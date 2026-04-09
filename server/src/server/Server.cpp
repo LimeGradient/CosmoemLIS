@@ -1,8 +1,7 @@
 #include "server/Server.hpp"
 
+#include "Log.hpp"
 #include "packets/Server.hpp"
-
-#include <stdio.h>
 
 void Server::start(int port) {
     this->webSocket = std::make_unique<ix::WebSocketServer>(port, "0.0.0.0");
@@ -13,10 +12,10 @@ void Server::start(int port) {
                 this->handlePackets(msg->str.c_str(), webSocket);
                 break;
             case ix::WebSocketMessageType::Open:
-                printf("New connection from IP: %s\n", connectionState->getRemoteIp().c_str());
+                Logging::info("New connection from IP: {}", connectionState->getRemoteIp());
                 break;
             case ix::WebSocketMessageType::Close:
-                printf("Client from IP: %s disconnected\n", connectionState->getRemoteIp().c_str());
+                Logging::info("Client from IP: {} disconnected", connectionState->getRemoteIp());
                 break;
             case ix::WebSocketMessageType::Error:
             case ix::WebSocketMessageType::Ping:
@@ -28,19 +27,19 @@ void Server::start(int port) {
 
     auto res = this->webSocket->listen();
     if (!res.first) {
-        printf("Server failed to start: %s\n", res.second.c_str());
+        Logging::error("Server failed to start: {}", res.second);
         return;
     }
     
     this->webSocket->start();
     this->online = true;
-    printf("Server started on port %d\n", port);
+    Logging::info("Server started on port {}", port);
 }
 
 void Server::stop() {
     this->webSocket->stop();
     this->online = false;
-    printf("Stopping server...\n");
+    Logging::info("Stopping server.");
 }
 
 bool Server::isOnline() {
@@ -48,11 +47,11 @@ bool Server::isOnline() {
 }
 
 void Server::handlePackets(std::string packetData, ix::WebSocket& socket) {
-    printf("Recieved packet: %s\n", packetData.c_str());
     nlohmann::json packetRaw = nlohmann::json::parse(packetData);
     
     if (!packetRaw.contains("packetID")) {
-        printf("No packet id found in message: %s\n", packetData.c_str());
+        Logging::error("No packet data found in packet.");
+        Logging::info("Recieved data: {}", packetData);
         return;
     }
 

@@ -3,6 +3,7 @@
 #include <atomic>
 #include <MinHook.h>
 
+#include "Log.hpp"
 #include "packets/Server.hpp"
 #include "panel/VotesPanel.hpp"
 #include "server/Server.hpp"
@@ -18,15 +19,13 @@ GetPreferredChoice_t oGetPreferredChoice = nullptr;
 std::atomic<bool> timerSpawned = false;
 
 bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject, void* methodInfo) {
-    printf("setting up choices\n");
-
     if (!oGetDialogChoice) {
-        printf("oGetDialogChoice is null!\n");
+        Logging::error("oGetDialogChoice is null");
         return oSetupChoices(instance, dialogChoiceObject, methodInfo);
     }
 
     if (!dialogChoiceObject) {
-        printf("dialogChoiceObject is null!\n");
+        Logging::error("dialogChoiceObject is null");
         return oSetupChoices(instance, dialogChoiceObject, methodInfo);
     }
 
@@ -34,33 +33,29 @@ bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject,
 
     uintptr_t dc = (uintptr_t)dialogChoice;
     if (dc < 0x10000 || dc > 0x7FFFFFFFFFFF) {
-        printf("dialogChoice is invalid pointer: %p\n", dialogChoice);
+        Logging::error("dialogChoice is an invalid pointer");
         return oSetupChoices(instance, dialogChoiceObject, methodInfo);
     }
 
     Il2CppList* choices = *(Il2CppList**)(dc + 0x1A8);
     if (!choices) {
-        printf("choices is null\n");
+        Logging::error("Choices is an invalid pointer: {}", (void*)choices);
         return oSetupChoices(instance, dialogChoiceObject, methodInfo);
     }
 
-    printf("choices ptr: %p\n", choices);
+    Logging::info("Choices ptr: {}", (void*)choices);
 
     uintptr_t cp = (uintptr_t)choices;
     void* items = *(void**)(cp + 0x10);
     int32_t size = *(int32_t*)(cp + 0x18);
 
     if (!items || size <= 0) {
-        printf("items is null or size is 0\n");
+        Logging::error("Items is null or size is 0");
         return oSetupChoices(instance, dialogChoiceObject, methodInfo);
     }
 
-    printf("choice count: %d\n", choices->size);
-
     bool isMajorChoice = *(bool*)(dc + 0x1B0);
     bool autoComplete  = *(bool*)(dc + 0x1B1);
-    printf("isMajorChoice: %d\n", isMajorChoice);
-    printf("autoComplete:  %d\n", autoComplete);
 
     uintptr_t arrayBase = (uintptr_t)items + 0x20;
     auto server = Server::get();
@@ -82,8 +77,6 @@ bool hkSetupChoices(void* instance, DialogChoiceGraphObject* dialogChoiceObject,
 
         Il2CppString* text = *(Il2CppString**)((uintptr_t)choice + 0x68);
         if (!text) continue;
-
-        printf("choice[%d] text: %s - position: %d\n", i, ReadIl2CppString(text).c_str(), (int)pos);
 
         Choice packetChoice = {
             .title = ReadIl2CppString(text),

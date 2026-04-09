@@ -1,9 +1,10 @@
 #include "UI/Window.hpp"
 
-#include <stdio.h>
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
+#include <stdio.h>
 
+#include "Log.hpp"
 #include "UI/panels/ConnectPanel.hpp"
 #include "UI/panels/ChoicePanel.hpp"
 
@@ -14,7 +15,7 @@ void Window::init() {
 
     float main_scale = SDL_GetDisplayContentScale(SDL_GetPrimaryDisplay());
     if (!SDL_CreateWindowAndRenderer("LIS Multiplayer - Client", 1280, 720, SDL_WINDOW_RESIZABLE | SDL_WINDOW_TRANSPARENT, &this->window, &this->renderer)) {
-        printf("Couldn't create window or renderer: %s", SDL_GetError());
+        Logging::error("Couldn't create window or renderer: {}", SDL_GetError());
         return;
     }
 

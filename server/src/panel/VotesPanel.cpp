@@ -131,9 +131,10 @@ void VotesPanel::startTimer(int seconds) {
             }
         }
         this->timerComplete = true;
-        this->timerThreadSpawned = false;
         this->choiceMade = false;
         this->timerStr = std::to_string(GameManager::get()->choiceTime);
+
+        this->timerThreadSpawned = false;
     });
 
     thread.detach();

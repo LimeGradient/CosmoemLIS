@@ -40,9 +40,9 @@ public:
 
 private:
     bool _showPanel = false;
+    std::vector<std::pair<Choice, float>> choices = {};
     std::atomic<bool> timerComplete = false;
     std::atomic<bool> choiceMade = false;
-    std::vector<std::pair<Choice, float>> choices = {};
     std::atomic<bool> timerThreadSpawned = false;
     std::string timerStr = "0";
 
