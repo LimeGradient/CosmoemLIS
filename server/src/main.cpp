@@ -7,14 +7,12 @@
 #include "Log.hpp"
 #include "hooks/DX11Hooks.hpp"
 #include "hooks/SetupChoices.hpp"
-#include "server/Server.hpp"
 #include "types/Game/BeforeTheStorm.hpp"
-
-HMODULE DllHandle;
+#include "types/Game.hpp"
 
 typedef DialogChoiceObject*(__stdcall* GetDialogChoice_t)(void* instance, void* methodInfo);
 
-void installHooks() {
+void installBTSHooks() {
     uintptr_t base = (uintptr_t)GetModuleHandleW(L"GameAssembly.dll");
 
     if (!base) {
@@ -48,11 +46,40 @@ void DestroyConsole() {
     FreeConsole();
 }
 
+std::wstring GetHostWindowTitle() {
+    DWORD targetPid = GetCurrentProcessId();
+    HWND hwnd = NULL;
+
+    struct EnumData { DWORD pid; HWND hwnd; };
+    EnumData data = { targetPid, NULL };
+
+    EnumWindows([](HWND hwnd, LPARAM lParam) -> BOOL {
+        auto* data = reinterpret_cast<EnumData*>(lParam);
+        DWORD pid = 0;
+        GetWindowThreadProcessId(hwnd, &pid);
+        if (pid == data->pid && IsWindowVisible(hwnd)) {
+            data->hwnd = hwnd;
+            return FALSE;
+        }
+        return TRUE;
+    }, (LPARAM)&data);
+
+    if (!data.hwnd) return L"";
+
+    wchar_t title[256];
+    GetWindowTextW(data.hwnd, title, 256);
+    return title;
+}
+
 void OnAttach(HINSTANCE hModule) {
     MH_Initialize();
 
     CreateConsole();
-    installHooks();
+
+    auto windowTitle = GetHostWindowTitle();
+    if (strcmp((char*)windowTitle.c_str(), LIS_BTS_REMASTERED_EXE_NAME)) {
+        installBTSHooks();
+    }
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
