@@ -28,7 +28,7 @@ target_sources(imgui PRIVATE
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     SDL3::SDL3
-    imgui 
+    imgui
     ixwebsocket
     nlohmann_json::nlohmann_json
     LISMultiplayerCommon
