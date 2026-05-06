@@ -10,6 +10,8 @@
 #include "types/Game/BeforeTheStorm.hpp"
 #include "types/Game.hpp"
 
+#include "LISRemastered/LISRemasteredSDK.hpp"
+
 typedef DialogChoiceObject*(__stdcall* GetDialogChoice_t)(void* instance, void* methodInfo);
 
 void installBTSHooks() {
@@ -27,9 +29,29 @@ void installBTSHooks() {
     const uintptr_t GET_DIALOG_CHOICE_OFFSET = 0x3208E0;
     const uintptr_t GET_PREFERRED_CHOICE_OFFSET = 0x24E580;
 
-    createChoicesHooks(pSetupChoices, (ChoiceMade_t)(base + CHOICE_MADE_OFFSET), (GetDialogChoice_t)(base + GET_DIALOG_CHOICE_OFFSET), (GetPreferredChoice_t)(base + GET_PREFERRED_CHOICE_OFFSET));
+    BeforeTheStormRemastered::createBTSChoicesHooks(
+        pSetupChoices, 
+        (BeforeTheStormRemastered::ChoiceMade_t)(base + CHOICE_MADE_OFFSET),
+        (GetDialogChoice_t)(base + GET_DIALOG_CHOICE_OFFSET),
+        (BeforeTheStormRemastered::GetPreferredChoice_t)(base + GET_PREFERRED_CHOICE_OFFSET)
+    );
     createDX11Hooks();
 
+    Logging::info("Hooks installed successfully");
+}
+
+void installLISRemasteredHooks() {
+    SDK::UEngine* engine = SDK::UEngine::GetEngine();
+    SDK::UWorld* world = SDK::UWorld::GetWorld();
+
+    SDK::APlayerController* controller = world->OwningGameInstance->LocalPlayers[0]->PlayerController;
+
+    SDK::UInputSettings::GetDefaultObj()->ConsoleKeys[0].KeyName = SDK::UKismetStringLibrary::Conv_StringToName(L"F2");
+    SDK::UObject* newObject = SDK::UGameplayStatics::SpawnObject(engine->ConsoleClass, engine->GameViewport);
+    engine->GameViewport->ViewportConsole = static_cast<SDK::UConsole*>(newObject);
+
+    LifeIsStrangeRemastered::createLISRemasteredChoicesHooks();
+    createDX11Hooks();
     Logging::info("Hooks installed successfully");
 }
 
@@ -77,7 +99,12 @@ void OnAttach(HINSTANCE hModule) {
     CreateConsole();
 
     auto windowTitle = GetHostWindowTitle();
-    if (strcmp((char*)windowTitle.c_str(), LIS_BTS_REMASTERED_EXE_NAME)) {
+    auto windowTitleStr = std::string(windowTitle.begin(), windowTitle.end());
+    Logging::info("Injecting hooks into: {}", windowTitleStr);
+
+    if (windowTitleStr.find(LIS_REMASTERED_EXE_NAME) != std::string::npos) {
+        installLISRemasteredHooks();
+    } else if (windowTitleStr.find(LIS_BTS_REMASTERED_EXE_NAME) != std::string::npos) {
         installBTSHooks();
     }
 }

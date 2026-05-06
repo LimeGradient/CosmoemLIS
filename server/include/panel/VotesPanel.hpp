@@ -8,7 +8,7 @@
 #include "hooks/SetupChoices.hpp"
 
 struct ChoiceMadeFunction {
-    ChoiceMade_t oChoiceMade;
+    BeforeTheStormRemastered::ChoiceMade_t oChoiceMade;
     void* instance;
     eInteractMenu button;
     void* methodInfo;

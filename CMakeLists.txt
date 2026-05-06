@@ -48,10 +48,12 @@ target_include_directories(LISMultiplayerCommon PUBLIC common/include/)
 target_link_libraries(LISMultiplayerCommon PRIVATE nlohmann_json::nlohmann_json)
 
 file(GLOB_RECURSE LIS_MULTIPLAYER_SDK_SOURCES SDK/*.cpp)
+file(GLOB_RECURSE LIS_MULTIPLAYER_SDK_HEADERS SDK/*.hpp)
 add_library(LISMultiplayerSDK STATIC
     ${LIS_MULTIPLAYER_SDK_SOURCES}
 )
-target_include_directories(LISMultiplayerSDK PUBLIC SDK/LISRemastered/)
+target_include_directories(LISMultiplayerSDK PUBLIC SDK)
+target_precompile_headers(LISMultiplayerSDK PUBLIC ${LIS_MULTIPLAYER_SDK_HEADERS})
 
 if (LIS_BUILD_CLIENT)
     add_subdirectory(client/)

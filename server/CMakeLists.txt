@@ -34,6 +34,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
     ixwebsocket
     nlohmann_json::nlohmann_json
     LISMultiplayerCommon
+    LISMultiplayerSDK
     d3d11.lib  
     dxgi.lib  
     d3dcompiler.lib
