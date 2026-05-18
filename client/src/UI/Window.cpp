@@ -36,6 +36,11 @@ void Window::init() {
     ImGui_ImplSDL3_InitForSDLRenderer(this->window, this->renderer);
     ImGui_ImplSDLRenderer3_Init(this->renderer);
 
+    SDL_Texture* background;
+    int backgroundWidth, backgroundHeight;
+    bool ret = UIHelper::LoadTextureFromFile("resources/background_1.jpg", renderer, &background, &backgroundWidth, &backgroundHeight);
+    IM_ASSERT(ret);
+
     SDL_Event event;
     this->running = true;
     while (this->running) {
@@ -50,10 +55,6 @@ void Window::init() {
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
-        SDL_Texture* background;
-        int backgroundWidth, backgroundHeight;
-        bool ret = UIHelper::LoadTextureFromFile("resources/background_1.jpg", renderer, &background, &backgroundWidth, &backgroundHeight);
-        IM_ASSERT(ret);
         ImGui::GetBackgroundDrawList()->AddImage(
             background,
             ImVec2(0, 0),
