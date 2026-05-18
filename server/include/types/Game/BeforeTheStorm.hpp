@@ -4,8 +4,6 @@
 #include "types/IL2CPP.hpp"
 #include "types/UnityEngine.hpp"
 
-
-#pragma pack(push, 1)
 struct SceneObject : EditableDataObjectWithAsset {
     float       m_lastUpdateTime;                   // 0x70
     uint8_t     _pad0[4];                           // 0x74 - align next pointer to 0x78
@@ -93,4 +91,3 @@ struct DialogChoiceGraphObject : EditableDataObjectGraphed {
     ChoiceObject* m_choiceMade;      // 0x68
     bool          m_useFallbackExit; // 0x70
 };
-#pragma pack(pop)

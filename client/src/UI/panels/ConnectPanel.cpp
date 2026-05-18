@@ -5,13 +5,13 @@
 
 #include "network/Client.hpp"
 #include "UI/Window.hpp"
+#include "UI/UIHelper.hpp"
 
 void ConnectPanel::render() {
     auto cm = ClientManager::get();
     auto window = Window::get();
 
-    ImGui::SetNextWindowSize(ImVec2(375, 400));
-    ImGui::Begin("LIS Multiplayer - Connect");
+    ImGui::BeginChild("Title", ImVec2(CONNECT_PANEL_WIDTH - 25, CONNECT_PANEL_HEIGHT - 25), true, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse );
 
     ImGui::InputText("Host", &this->host);
     ImGui::InputInt("Port", &this->port);
@@ -47,5 +47,11 @@ void ConnectPanel::render() {
     ImGui::Text("Client Options");
     ImGui::Checkbox("Transparent Window", &window->isTransparent);
 
-    ImGui::End();
+    ImGui::EndChild();
+}
+
+void ConnectPanel::init(float x, float y) {
+    UIHelper::createPanel("ConnectPanel", ImVec2(CONNECT_PANEL_WIDTH, CONNECT_PANEL_HEIGHT), ImVec2(x, y), [this]() {
+        this->render();
+    }, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoScrollbar);
 }

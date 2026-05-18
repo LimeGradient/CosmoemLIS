@@ -12,6 +12,13 @@ Make choices in Life is Strange with your friends.
 - [ ] Life is Strange: Reunion
 
 ## How to Use
+Guide on how to use this!
+### Hosting:
+1. Download LISMultiplayerHost.dll from the latest release.
+2. Open your (supported) Life is Strange game
+3. Using a program to inject DLL's into your program (Game launcher is WIP) inject the Host DLL into your game
+
+## How to Build
 1. Clone the Repository: `git clone https://github.com/LimeGradient/LISMultiplayer && cd LISMultiplayer`
 2. Build the project with CMake:
     * Client and Server (Windows Only): `cmake -S . -B build`

@@ -43,6 +43,7 @@ void installBTSHooks() {
 void installLISRemasteredHooks() {
     SDK::UEngine* engine = SDK::UEngine::GetEngine();
     SDK::UWorld* world = SDK::UWorld::GetWorld();
+    
 
     SDK::APlayerController* controller = world->OwningGameInstance->LocalPlayers[0]->PlayerController;
 

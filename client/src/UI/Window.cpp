@@ -2,9 +2,10 @@
 
 #include <backends/imgui_impl_sdl3.h>
 #include <backends/imgui_impl_sdlrenderer3.h>
-#include <stdio.h>
 
 #include "Log.hpp"
+#include "UI/UIHelper.hpp"
+#include "UI/fonts/Arial.hpp"
 #include "UI/panels/ConnectPanel.hpp"
 #include "UI/panels/ChoicePanel.hpp"
 
@@ -24,6 +25,7 @@ void Window::init() {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
+    auto arialFont = io.Fonts->AddFontFromMemoryCompressedTTF(arials_compressed_data, sizeof(arials_compressed_size), 20);
     
     ImGui::StyleColorsDark();
 
@@ -47,8 +49,36 @@ void Window::init() {
         ImGui_ImplSDLRenderer3_NewFrame();
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
+
+        SDL_Texture* background;
+        int backgroundWidth, backgroundHeight;
+        bool ret = UIHelper::LoadTextureFromFile("resources/background_1.jpg", renderer, &background, &backgroundWidth, &backgroundHeight);
+        IM_ASSERT(ret);
+        ImGui::GetBackgroundDrawList()->AddImage(
+            background,
+            ImVec2(0, 0),
+            io.DisplaySize
+        );
+
+        int w, h;
+        SDL_GetWindowSize(window, &w, &h);
+        ImVec2 windowSize(w, h);
+        UIHelper::createPanel("MainPanel", ImVec2(950, 500), UIHelper::getCenter(windowSize, ImVec2(950, 500)), [windowSize, arialFont]() {
+            ImGui::SetCursorPos(UIHelper::getCenter(ImVec2(950, 500), ImVec2(900, 450)));
+            ImGui::BeginChild("Title", ImVec2(900, 450), true, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoInputs );
+
+            std::string title = "LIS Multiplayer - Client";
+            float x = (ImGui::GetWindowSize().x / 2) - (ImGui::CalcTextSize(title.c_str()).x / 2);
+            UIHelper::renderText(title, arialFont, ImVec2(x, 10));
+
+            ImGui::Separator();
+
+            auto connectPanelPos = UIHelper::getCenter(windowSize, ImVec2(CONNECT_PANEL_WIDTH, CONNECT_PANEL_HEIGHT));
+            ConnectPanel::get()->init(connectPanelPos.x, connectPanelPos.y);
+
+            ImGui::EndChild();
+        }, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoInputs);
         
-        ConnectPanel::get()->render();
         ChoicePanel::get()->render();
 
         ImGui::Render();
