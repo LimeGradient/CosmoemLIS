@@ -66,22 +66,30 @@ void VotesPanel::render() {
 
             if (it != choices.end()) {
                 auto choice = it->first;
-                // choice auto positioning guide
-                // left -> right -> up -> down
-                int index = std::distance(choices.begin(), it);
-                switch (index) {
-                    case 0:
-                        this->makeChoice(eInteractMenu::kLeft);
+                switch (GameManager::get()->gameType) {
+                    case GameType::LIS_REMASTERED:
+                        this->makeChoice(choice.choiceID);
                         break;
-                    case 1:
-                        this->makeChoice(eInteractMenu::kRight);
+                    case GameType::LIS_BTS_REMASTERED: {
+                        // choice auto positioning guide
+                        // left -> right -> up -> down
+                        int index = std::distance(choices.begin(), it);
+                        switch (index) {
+                            case 0:
+                                this->makeChoice(eInteractMenu::kLeft);
+                                break;
+                            case 1:
+                                this->makeChoice(eInteractMenu::kRight);
+                                break;
+                            case 2:
+                                this->makeChoice(eInteractMenu::kUp);
+                                break;
+                            case 3:
+                                this->makeChoice(eInteractMenu::kDown);
+                                break;
+                        }
                         break;
-                    case 2:
-                        this->makeChoice(eInteractMenu::kUp);
-                        break;
-                    case 3:
-                        this->makeChoice(eInteractMenu::kDown);
-                        break;
+                    }
                 }
                 this->choiceMade = true;
             }
@@ -146,4 +154,8 @@ void VotesPanel::makeChoice(eInteractMenu button) {
         button,
         this->oChoiceMade.methodInfo
     );
+}
+
+void VotesPanel::makeChoice(int choiceIndex) {
+    this->oChoiceChoosed(choiceIndex);
 }

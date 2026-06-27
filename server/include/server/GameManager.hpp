@@ -1,5 +1,7 @@
 #pragma once
 
+#include "types/Game.hpp"
+
 class GameManager {
 public:
     static GameManager* get() {
@@ -8,4 +10,5 @@ public:
     }
 
     int choiceTime = 30;
+    GameType gameType;
 };

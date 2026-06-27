@@ -12,6 +12,31 @@
 namespace LifeIsStrangeRemastered {
     std::atomic<bool> timerSpawned = false;
 
+    template <typename T>
+    T* FindLiveInstance() {
+        SDK::UClass* TargetClass = T::StaticClass();
+        SDK::UObject* DefaultObj = reinterpret_cast<SDK::UObject*>(T::GetDefaultObj());
+
+        const SDK::int32 Count = SDK::UObject::GObjects->Num();
+
+        for (SDK::int32 i = 0; i < Count; i++)
+        {
+            SDK::UObject* Obj = SDK::BasicFilesImplUtils::GetObjectByIndex(i);
+            if (!Obj)
+                continue;
+
+            if (Obj == DefaultObj)
+                continue; // skip the CDO/template instance
+
+            if (Obj->Class != TargetClass)
+                continue; // exact-class match only
+
+            return static_cast<T*>(Obj);
+        }
+
+        return nullptr;
+    }
+
     fnProcessEvent oProcessEvent = nullptr;
     void __stdcall hkProcessEvent(SDK::UObject* thisObj, SDK::UFunction* function, void* params) {
         __try {
@@ -33,15 +58,52 @@ namespace LifeIsStrangeRemastered {
                     auto currentTime = std::chrono::steady_clock::now();
                     auto elapsed = currentTime - lastTime;
 
+                    VotesPanel::get()->setChoiceMade(
+                        [](int i) {
+                            SDK::ALiSDialogActor* dialogActor = FindLiveInstance<SDK::ALiSDialogActor>();
+                            dialogActor->OnDialogChoiceNodeChoiceChoosed(i);
+                        }
+                    );
+
                     if (elapsed.count() >= waitTime) {
                         lastTime = currentTime;
 
                         SDK::ULiSDialogWidget* object = static_cast<SDK::ULiSDialogWidget*>(thisObj);
-                        
-                        for (auto choice : object->DialogChoices) {
-                            auto localizedString = object->GetLocalizedString(choice);
-                            Logging::info("Choice Localized: {}", localizedString.ToString());
+
+                        std::vector<Choice> packetChoices;
+                        std::vector<std::pair<Choice, float>> choiceVotes;
+
+                        auto server = Server::get();
+
+                        for (SDK::int32 i = 0; i < object->DialogChoices.Num(); i++) {
+                            auto localizedString = object->GetLocalizedString(object->DialogChoices[i]);
                             
+                            if (localizedString.ToString().empty())
+                                continue;
+
+                            Choice packetChoice = {
+                                .title = localizedString.ToString(),
+                                .choiceID = i,
+                                .choicePos = i
+                            };
+                            packetChoices.push_back(packetChoice);
+                            choiceVotes.push_back({
+                                packetChoice,
+                                0.f
+                            });
+                            
+                            Logging::info("Index: {} | Choice Localized: {}", i, localizedString.ToString());
+                        }
+
+                        if (server->isOnline()) {
+                            server->setChoices(choiceVotes);
+                            server->setTotalVotes(0);
+                            VotesPanel::get()->showPanel(true);
+
+                            VotesPanel::get()->startTimer(GameManager::get()->choiceTime);
+
+                            auto packet = SendChoicesPacket::create(packetChoices, object->IsMajorChoice());
+                            server->broadcast(packet);
                         }
                     }
                 }

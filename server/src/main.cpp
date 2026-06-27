@@ -4,13 +4,17 @@
 #include <backends/imgui_impl_win32.h>
 #include <backends/imgui_impl_dx11.h>
 
+#include "DiscordRPC.hpp"
 #include "Log.hpp"
 #include "hooks/DX11Hooks.hpp"
 #include "hooks/SetupChoices.hpp"
+#include "server/GameManager.hpp"
 #include "types/Game/BeforeTheStorm.hpp"
 #include "types/Game.hpp"
 
 #include "LISRemastered/LISRemasteredSDK.hpp"
+
+HMODULE dllModule;
 
 typedef DialogChoiceObject*(__stdcall* GetDialogChoice_t)(void* instance, void* methodInfo);
 
@@ -43,7 +47,6 @@ void installBTSHooks() {
 void installLISRemasteredHooks() {
     SDK::UEngine* engine = SDK::UEngine::GetEngine();
     SDK::UWorld* world = SDK::UWorld::GetWorld();
-    
 
     SDK::APlayerController* controller = world->OwningGameInstance->LocalPlayers[0]->PlayerController;
 
@@ -103,9 +106,19 @@ void OnAttach(HINSTANCE hModule) {
     auto windowTitleStr = std::string(windowTitle.begin(), windowTitle.end());
     Logging::info("Injecting hooks into: {}", windowTitleStr);
 
+    auto discordManager = DiscordManager::get();
+    discordManager->init();
+
     if (windowTitleStr.find(LIS_REMASTERED_EXE_NAME) != std::string::npos) {
+        GameManager::get()->gameType = GameType::LIS_REMASTERED;
         installLISRemasteredHooks();
     } else if (windowTitleStr.find(LIS_BTS_REMASTERED_EXE_NAME) != std::string::npos) {
+        GameManager::get()->gameType = GameType::LIS_BTS_REMASTERED;
+        const auto presence = discord::RPCManager::get().getPresence()
+            .setState("Waiting to host...")
+            .setDetails("LIS Multiplayer - Host")
+            .setLargeImageKey("lis_bts_remastered");
+        presence.refresh();
         installBTSHooks();
     }
 }
@@ -113,6 +126,9 @@ void OnAttach(HINSTANCE hModule) {
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {
     switch (ul_reason_for_call) {
         case DLL_PROCESS_ATTACH:
+            dllModule = hModule;
+
+            DisableThreadLibraryCalls(hModule);
             CreateThread(0, 0, (LPTHREAD_START_ROUTINE)OnAttach, 0, 0, 0);
             break;
         case DLL_PROCESS_DETACH:

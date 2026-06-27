@@ -6,6 +6,7 @@ project(LISMultiplayer VERSION 1.0.0 LANGUAGES CXX)
 
 option(LIS_BUILD_SERVER "Build LIS Multiplayer Server" ON)
 option(LIS_BUILD_CLIENT "Build LIS Multiplayer Client" ON)
+option(LIS_BUILD_RELAY "Build LIS Multiplayer Relay Server" ON)
 
 include(FetchContent)
 FetchContent_Declare(
@@ -40,12 +41,19 @@ add_library(imgui STATIC
 
 target_include_directories(imgui PUBLIC ${imgui_SOURCE_DIR})
 
+FetchContent_Declare(
+    discord-rpc
+    GIT_REPOSITORY https://github.com/EclipseMenu/discord-presence
+    GIT_TAG main
+)
+FetchContent_MakeAvailable(discord-rpc)
+
 add_library(LISMultiplayerCommon STATIC
     common/Packet.cpp
     common/StringExtras.cpp
 )
 target_include_directories(LISMultiplayerCommon PUBLIC common/include/)
-target_link_libraries(LISMultiplayerCommon PRIVATE nlohmann_json::nlohmann_json)
+target_link_libraries(LISMultiplayerCommon PRIVATE nlohmann_json::nlohmann_json discord-rpc)
 
 file(GLOB_RECURSE LIS_MULTIPLAYER_SDK_SOURCES SDK/*.cpp)
 file(GLOB_RECURSE LIS_MULTIPLAYER_SDK_HEADERS SDK/*.hpp)
@@ -61,4 +69,8 @@ endif()
 
 if (LIS_BUILD_SERVER)
     add_subdirectory(server/)
+endif()
+
+if (LIS_BUILD_RELAY)
+    add_subdirectory(relay-server/)
 endif()

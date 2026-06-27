@@ -1,6 +1,5 @@
-#include "server/Server.hpp"
+#include "Server.hpp"
 
-#include "DiscordRPC.hpp"
 #include "Log.hpp"
 #include "packets/Server.hpp"
 
@@ -14,6 +13,9 @@ void Server::start(int port) {
                 break;
             case ix::WebSocketMessageType::Open:
                 Logging::info("New connection from IP: {}", connectionState->getRemoteIp());
+                webSocket.sendText(nlohmann::json::object({
+                    {"server_type", "relay"}
+                }));
                 break;
             case ix::WebSocketMessageType::Close:
                 Logging::info("Client from IP: {} disconnected", connectionState->getRemoteIp());
@@ -32,10 +34,6 @@ void Server::start(int port) {
         return;
     }
     
-    discord::RPCManager::get().getPresence()
-        .setState("Hosting (0 in lobby)")
-        .refresh();
-
     this->webSocket->start();
     this->online = true;
     Logging::info("Server started on port {}", port);
@@ -59,7 +57,7 @@ void Server::handlePackets(std::string packetData, ix::WebSocket& socket) {
         Logging::info("Recieved data: {}", packetData);
         return;
     }
-
+    
     int packetID = packetRaw["packetID"];
     switch (packetID) {
         case 1001: {
@@ -90,10 +88,6 @@ void Server::handleUserJoinPacket(nlohmann::json rawData, ix::WebSocket& socket)
     for (auto client : this->clients) {
         users.push_back({client.name, client.userID});
     }
-    
-    discord::RPCManager::get().getPresence()
-        .setState(std::format("Hosting ({} in lobby)", this->clients.size()))
-        .refresh();
 
     auto packet = UserJoinedPacket::create(users);
     this->broadcast(packet);

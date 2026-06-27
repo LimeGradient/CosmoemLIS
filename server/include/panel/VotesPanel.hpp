@@ -36,7 +36,12 @@ public:
         this->oChoiceMade = choiceMade;
     }
 
+    void setChoiceMade(std::function<void(int)> choiceChoosed) {
+        this->oChoiceChoosed = choiceChoosed;
+    }
+
     void makeChoice(eInteractMenu button);
+    void makeChoice(int choiceIndex);
 
 private:
     bool _showPanel = false;
@@ -47,4 +52,5 @@ private:
     std::string timerStr = "0";
 
     ChoiceMadeFunction oChoiceMade;
+    std::function<void(int)> oChoiceChoosed;
 };

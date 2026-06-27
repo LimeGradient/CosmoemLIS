@@ -3,12 +3,19 @@
 #include <string>
 #include <ixwebsocket/IXWebSocket.h>
 
-#include "packets/Server.hpp"
-
 class UserClient {
 public:
     UserClient(std::string name, std::string userID) : name(name), userID(userID) {}
 
+    void setIsHost(bool isHost) {
+        this->isHost = isHost;
+    }
+
+    bool getIsHost() {
+        return isHost;
+    }
+
     std::string name;
     std::string userID;
+    bool isHost;
 };
