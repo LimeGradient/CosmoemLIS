@@ -17,7 +17,7 @@ namespace Cosmoem {
         };
 
         Frame captureWindow(HWND hwnd);
-        void startCapture(Utils::GameUtils::GameType gameType);
+        void startCapture();
     
         void setGameHWND(HWND hwnd) {
             this->gameHWND = hwnd;

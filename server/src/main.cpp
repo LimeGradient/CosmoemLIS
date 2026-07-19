@@ -26,7 +26,7 @@ void OnAttach(HINSTANCE hModule) {
 
     Cosmoem::WinCaptureServer::get()->start(2877);
     Cosmoem::WinCapture::get()->setGameHWND(Cosmoem::Utils::Win32Utils::getWindowFromPID(GetCurrentProcessId()));
-    Cosmoem::WinCapture::get()->startCapture(Cosmoem::Utils::GameUtils::LIS_BTS_REMASTERED);
+    Cosmoem::WinCapture::get()->startCapture();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved) {

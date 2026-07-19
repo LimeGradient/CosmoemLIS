@@ -44,11 +44,7 @@ namespace Cosmoem {
         };
     }
 
-    void WinCapture::startCapture(Utils::GameUtils::GameType gameType) {
-        const char* gameTitle = Utils::GameUtils::gameTypeToString(gameType);
-        std::wstring wGameTitle(gameTitle, gameTitle + std::strlen(gameTitle));
-        
-        DWORD pid = Utils::Win32Utils::getPIDFromWindowName(wGameTitle);
+    void WinCapture::startCapture() {
         HWND hwnd = this->gameHWND;
 
         const double targetFps = 30.0;

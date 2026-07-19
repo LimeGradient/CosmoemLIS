@@ -1,18 +1,13 @@
 #include <SDL3/SDL.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <windows.h>
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <cstdio>
-#include <iostream>
 
 #include <ixwebsocket/IXWebSocket.h>
 #include "Logging.hpp"
 #include "ixwebsocket/IXNetSystem.h"
 
-#pragma comment(lib, "ws2_32.lib")
 
 struct FrameHeader {
     uint32_t dataLen;

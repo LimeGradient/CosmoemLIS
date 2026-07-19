@@ -19,8 +19,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(minhook)
 
-find_package(OpenCV REQUIRED)
-
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     add_compile_definitions(WIN32_LEAN_AND_MEAN=1)
 endif()
