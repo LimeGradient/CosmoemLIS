@@ -20,25 +20,32 @@ namespace Cosmoem {
         HDC saveDC = CreateCompatibleDC(hwndDC);
 
         auto hBitmap = CreateCompatibleBitmap(hwndDC, width, height);
+        HGDIOBJ oldObj = SelectObject(saveDC, hBitmap);
         SelectObject(saveDC, hBitmap);
 
-        auto res = PrintWindow(hwnd, saveDC, 2);
+        BOOL res = PrintWindow(hwnd, saveDC, PW_RENDERFULLCONTENT);
+        if (!res) {
+            SelectObject(saveDC, oldObj);
+            DeleteObject(hBitmap);
+            DeleteDC(saveDC);
+            ReleaseDC(hwnd, hwndDC);
+            throw std::runtime_error("PrintWindow failed");
+        }
 
         BITMAP bitmapInfo;
         GetObject(hBitmap, sizeof(BITMAP), &bitmapInfo);
 
         LONG bufferSize = bitmapInfo.bmWidthBytes * bitmapInfo.bmHeight;
-        BYTE* pixelBuffer = new BYTE[bufferSize];
-        GetBitmapBits(hBitmap, bufferSize, pixelBuffer);
 
-        Image4C img(pixelBuffer, bitmapInfo.bmHeight, bitmapInfo.bmWidth);
+        std::vector<uint8_t> pixelBuffer(bufferSize);
+        GetBitmapBits(hBitmap, bufferSize, pixelBuffer.data());
 
-        DeleteObject(hBitmap);
+        SelectObject(saveDC, oldObj);
         DeleteDC(saveDC);
         ReleaseDC(hwnd, hwndDC);
 
         return {
-            img.data(),
+            std::move(pixelBuffer),
             bitmapInfo.bmWidth,
             bitmapInfo.bmHeight
         };
